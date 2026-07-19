@@ -1,0 +1,665 @@
+{
+  "datasets": [
+    {
+      "name": "62064834",
+      "displayName": "Untitled dataset",
+      "queryLines": [
+        "-- Viewership by hour, weekday/weekend, peak viewing time, show ages, gender, and province\n",
+        "SELECT\n",
+        "    COALESCE(A.UserID0, A.userid4) AS UserID,\n",
+        "    A.RecordDate2 AS record_date,\n",
+        "    B.name,\n",
+        "    B.Surname,\n",
+        "    B.Email,\n",
+        "    B.Gender,\n",
+        "    B.Race,\n",
+        "    B.Age,\n",
+        "    B.`Social Media Handle`,\n",
+        "    B.Province,\n",
+        "    HOUR(A.RecordDate2) AS view_hour,\n",
+        "    DAYOFWEEK(A.RecordDate2) AS day_number,\n",
+        "    DATE_FORMAT(A.RecordDate2, 'EEEE') AS day_name,\n",
+        "    CASE\n",
+        "        WHEN DAYOFWEEK(A.RecordDate2) IN (7,1) THEN 'Weekend'\n",
+        "        ELSE 'Weekday'\n",
+        "    END AS day_classification,\n",
+        "    COUNT(*) AS view_count,\n",
+        "    CASE\n",
+        "        WHEN HOUR(A.RecordDate2) BETWEEN 18 AND 21 THEN 'Peak'\n",
+        "        ELSE 'Off-Peak'\n",
+        "    END AS peak_viewing_time,\n",
+        "    ROUND(Hour(A.`Duration 2`) * 60 + minute(A.`Duration 2`) + second(A.`Duration 2`) / 60, 2) AS duration_minute\n",
+        "FROM `agent_assignment`.`portfolio`.`Viewership` A\n",
+        "LEFT JOIN `agent_assignment`.`portfolio`.`bright_tv` B\n",
+        "  ON COALESCE(A.UserID0, A.userid4) = B.UserID\n",
+        "GROUP BY\n",
+        "    COALESCE(A.UserID0, A.userid4),\n",
+        "    A.RecordDate2,\n",
+        "    B.name,\n",
+        "    B.Surname,\n",
+        "    B.Email,\n",
+        "    B.Gender,\n",
+        "    B.Race,\n",
+        "    B.Age,\n",
+        "    B.`Social Media Handle`,\n",
+        "    B.Province,\n",
+        "    HOUR(A.RecordDate2),\n",
+        "    DAYOFWEEK(A.RecordDate2),\n",
+        "    DATE_FORMAT(A.RecordDate2, 'EEEE'),\n",
+        "    CASE\n",
+        "        WHEN DAYOFWEEK(A.RecordDate2) IN (7,1) THEN 'Weekend'\n",
+        "        ELSE 'Weekday'\n",
+        "    END,\n",
+        "    CASE\n",
+        "        WHEN HOUR(A.RecordDate2) BETWEEN 18 AND 21 THEN 'Peak'\n",
+        "        ELSE 'Off-Peak'\n",
+        "    END,\n",
+        "    A.`Duration 2`;"
+      ],
+      "columns": [
+        {
+          "displayName": "Age Group",
+          "expression": "CASE WHEN `Age` < 18 THEN 'Under 18' WHEN `Age` BETWEEN 18 AND 24 THEN '18-24' WHEN `Age` BETWEEN 25 AND 34 THEN '25-34' WHEN `Age` BETWEEN 35 AND 44 THEN '35-44' WHEN `Age` BETWEEN 45 AND 54 THEN '45-54' WHEN `Age` BETWEEN 55 AND 64 THEN '55-64' WHEN `Age` >= 65 THEN '65+' ELSE 'Unknown' END"
+        }
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "9baf3e10",
+      "displayName": "Untitled Page",
+      "layout": [
+        {
+          "widget": {
+            "name": "f57da7c7",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "62064834",
+                  "fields": [
+                    {
+                      "name": "count(Gender)",
+                      "expression": "COUNT(`Gender`)"
+                    },
+                    {
+                      "name": "Province",
+                      "expression": "`Province`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "title": "Provincial Viewership Distribution",
+                "showTitle": true
+              },
+              "version": 3,
+              "mark": {
+                "layout": "stack"
+              },
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "count(Gender)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "Province",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 9,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "100947eb",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "62064834",
+                  "fields": [
+                    {
+                      "name": "Age",
+                      "expression": "`Age`"
+                    },
+                    {
+                      "name": "Province",
+                      "expression": "`Province`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "title": "Age Demographics by Province",
+                "showTitle": true,
+                "showDescription": false
+              },
+              "version": 3,
+              "mark": {
+                "layout": "layer"
+              },
+              "widgetType": "heatmap",
+              "encodings": {
+                "x": {
+                  "fieldName": "Age",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "Province",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 15,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "ff17e9cb",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "62064834",
+                  "fields": [
+                    {
+                      "name": "view_hour",
+                      "expression": "`view_hour`"
+                    },
+                    {
+                      "name": "record_date",
+                      "expression": "`record_date`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "title": "Viewing Activity Heatmap - Hourly by Date",
+                "showTitle": true
+              },
+              "version": 3,
+              "mark": {
+                "layout": "layer"
+              },
+              "widgetType": "heatmap",
+              "encodings": {
+                "x": {
+                  "fieldName": "view_hour",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "record_date",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 15,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "06d1301f",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "62064834",
+                  "fields": [
+                    {
+                      "name": "Province",
+                      "expression": "`Province`"
+                    },
+                    {
+                      "name": "day_name",
+                      "expression": "`day_name`"
+                    },
+                    {
+                      "name": "count(peak_viewing_time)",
+                      "expression": "COUNT(`peak_viewing_time`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "title": "Viewership by Day of Week & Province",
+                "showTitle": true
+              },
+              "version": 3,
+              "mark": {
+                "layout": "group"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "day_name",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "count(peak_viewing_time)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "Province",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 9,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "7370c174",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "62064834",
+                  "fields": [
+                    {
+                      "name": "peak_viewing_time",
+                      "expression": "`peak_viewing_time`"
+                    },
+                    {
+                      "name": "Age Group",
+                      "expression": "`Age Group`"
+                    },
+                    {
+                      "name": "sum(view_count)",
+                      "expression": "SUM(`view_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "title": "Views by Age Group - Peak vs Off-Peak",
+                "showTitle": true
+              },
+              "version": 3,
+              "mark": {
+                "layout": "group"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "Age Group",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(view_count)",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "peak_viewing_time",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "fcfbb0d7",
+            "queries": [
+              {
+                "name": "dashboards/01f17fb446a712bd8fd2daed1987c6f3/datasets/01f17fb568b917a28b14b80b1d04cfd5_Age",
+                "query": {
+                  "datasetName": "62064834",
+                  "fields": [
+                    {
+                      "name": "Age",
+                      "expression": "`Age`"
+                    },
+                    {
+                      "name": "Age_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "showDescription": false,
+                "title": "Age Filter"
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "Age",
+                    "queryName": "dashboards/01f17fb446a712bd8fd2daed1987c6f3/datasets/01f17fb568b917a28b14b80b1d04cfd5_Age"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 12,
+            "height": 1
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_views",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "62064834",
+                  "fields": [
+                    {
+                      "name": "sum(view_count)",
+                      "expression": "SUM(`view_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Views",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "sum(view_count)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_users",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "62064834",
+                  "fields": [
+                    {
+                      "name": "countdistinct(UserID)",
+                      "expression": "COUNT(DISTINCT `UserID`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Unique Viewers",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "countdistinct(UserID)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_duration",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "62064834",
+                  "fields": [
+                    {
+                      "name": "avg(duration_minute)",
+                      "expression": "AVG(`duration_minute`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Avg Duration (min)",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "avg(duration_minute)",
+                  "format": {
+                    "type": "number-plain",
+                    "abbreviation": "none",
+                    "decimalPlaces": {
+                      "type": "exact",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_provinces",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "62064834",
+                  "fields": [
+                    {
+                      "name": "countdistinct(Province)",
+                      "expression": "COUNT(DISTINCT `Province`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "title": "Total Provinces",
+                "showTitle": true
+              },
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "countdistinct(Province)"
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 0,
+            "width": 3,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "e7db38d8",
+            "queries": [
+              {
+                "name": "dashboards/01f17fb446a712bd8fd2daed1987c6f3/datasets/01f17fb568b917a28b14b80b1d04cfd5_day_classification",
+                "query": {
+                  "datasetName": "62064834",
+                  "fields": [
+                    {
+                      "name": "day_classification",
+                      "expression": "`day_classification`"
+                    },
+                    {
+                      "name": "day_classification_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true
+              },
+              "widgetType": "filter-single-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "day_classification",
+                    "queryName": "dashboards/01f17fb446a712bd8fd2daed1987c6f3/datasets/01f17fb568b917a28b14b80b1d04cfd5_day_classification"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 21,
+            "width": 12,
+            "height": 1
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
